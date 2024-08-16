@@ -97,6 +97,7 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMythCharacter::StartSprinting()
 {
 	GetCharacterMovement()->MaxWalkSpeed = 1000.f; // Increase speed to sprint
+	//UE_LOG(LogTemplateCharacter, Warning, TEXT("Its sprinting"));
 }
 
 void AMythCharacter::StopSprinting()

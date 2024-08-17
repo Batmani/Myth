@@ -102,6 +102,7 @@ void AMythCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor
 			// Optionally, apply an impulse for additional physical response
 			float ImpulseStrength = ImpactStrength * 10.0f; // Adjust as needed
 			GeometryCollectionComponent->AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
+			UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *OtherActor->GetName());
 
 		}
 	}
@@ -111,8 +112,6 @@ void AMythCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnHit);
-
-	GetMesh()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnMeshHit);
 }
 
 //////////////////////////////////////////////////////////////////////////

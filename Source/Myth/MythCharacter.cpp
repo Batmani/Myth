@@ -11,6 +11,8 @@
 #include "InputActionValue.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 //#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private/ApexDestructionModule.cpp"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -79,38 +81,125 @@ AMythCharacter::AMythCharacter()
 //		}
 //	}
 //}
+void AMythCharacter::OnLeftMouseClick()
+{
+	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its clickingtting"));
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		FVector WorldLocation, WorldDirection;
+		if (PlayerController->DeprojectMousePositionToWorld(WorldLocation, WorldDirection))
+		{
+			FVector Start = WorldLocation;
+			FVector End = Start + (WorldDirection * 10000.0f); // Extend the ray far enough into the world
+
+			FHitResult HitResult;
+			FCollisionQueryParams CollisionParams;
+			CollisionParams.AddIgnoredActor(this); // Ignore the character itself
+
+			// Perform the line trace
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams))
+			{
+				// Process the hit result
+				if (UGeometryCollectionComponent* DestructibleComp = Cast<UGeometryCollectionComponent>(HitResult.Component))
+				{
+					FVector ImpulseDir = HitResult.ImpactNormal * -1.0f; // Impulse direction opposite to the hit normal
+					float ImpulseStrength = 10000.0f; // Adjust this value as needed
+
+					DestructibleComp->AddImpulseAtLocation(ImpulseDir * ImpulseStrength, HitResult.Location);
+
+					UE_LOG(LogTemp, Warning, TEXT("Applied impulse at location: %s"), *HitResult.Location.ToString());
+				}
+			}
+		}
+	}
+}
+
 
 void AMythCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	//UE_LOG(LogTemplateCharacter, Warning, TEXT("Applied damage to GeometryCollection at "));
 	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its hitting"));
-	if (OtherActor && OtherActor != this)
+	if (OtherActor && OtherActor != this && OtherComponent)
 	{
-		UGeometryCollectionComponent* GeometryCollectionComponent = OtherActor->FindComponentByClass<UGeometryCollectionComponent>();
-		if (GeometryCollectionComponent)
+	//	FVector FootLocation;
+	//	bool bHitLeftFoot = false;
+	//	bool bHitRightFoot = false;
+
+	//	// Use sockets if available
+	///*	FVector LeftFootLocation = GetMesh()->GetSocketLocation(TEXT("LeftFootSocket"));
+	//	FVector RightFootLocation = GetMesh()->GetSocketLocation(TEXT("RightFootSocket"));*/
+
+	//	// Alternatively, use bone locations if not using sockets
+	//	 FVector LeftFootLocation = GetMesh()->GetBoneLocation(TEXT("hand_l"));
+	//	 FVector RightFootLocation = GetMesh()->GetBoneLocation(TEXT("foot_r"));
+
+	//	// Determine which foot is closer to the hit location
+	//	if ((Hit.ImpactPoint - LeftFootLocation).Size() < (Hit.ImpactPoint - RightFootLocation).Size())
+	//	{
+	//		FootLocation = LeftFootLocation;
+	//		bHitLeftFoot = true;
+	//	}
+	//	else
+	//	{
+	//		FootLocation = RightFootLocation;
+	//		bHitRightFoot = true;
+	//	}
+
+		// Apply force at the foot location if we hit a destructible component
+		UGeometryCollectionComponent* DestructibleComp = Cast<UGeometryCollectionComponent>(OtherComponent);
+		if (DestructibleComp) 
 		{
-			// Calculate impact point and direction
-			FVector ImpactPoint = Hit.ImpactPoint;
-			FVector ImpactDirection = -Hit.ImpactNormal; // Reverse the normal for correct direction
+			 FVector ImpulseDir = NormalImpulse.GetSafeNormal();
+			//FVector ImpulseDir = FVector(0.0f, 0.0f, -1.0f); // Directly down
+			float ImpulseStrength = 10000.0f; // Adjust this value as needed
 
-			// Calculate impact strength based on character's velocity
-			float ImpactStrength = GetVelocity().Size() * 100.0f; // Adjust multiplier as needed
-
-			// Apply damage to the GeometryCollection
-			//GeometryCollectionComponent->ApplyDamage(ImpactStrength, ImpactPoint, ImpactDirection, 1.0f);
-
-			// Optionally, apply an impulse for additional physical response
-			float ImpulseStrength = ImpactStrength * 10.0f; // Adjust as needed
-			GeometryCollectionComponent->AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
-			UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *OtherActor->GetName());
-
+			DestructibleComp->AddImpulseAtLocation(ImpulseDir * ImpulseStrength, ImpulseDir);
+		/*	DestructibleComp->AddImpulseAtLocation(ImpulseDir * ImpulseStrength, FootLocation);
+			if (bHitLeftFoot)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Applied force at left foot location: %s"), *FootLocation.ToString());
+			}
+			else if (bHitRightFoot)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Applied force at right foot location: %s"), *FootLocation.ToString());
+			}*/
 		}
+		//UGeometryCollectionComponent* GeometryCollectionComponent = OtherActor->FindComponentByClass<UGeometryCollectionComponent>();
+		//if (GeometryCollectionComponent)
+		//{
+		//	// Calculate impact point and direction
+		//	FVector ImpactPoint = Hit.ImpactPoint;
+		//	FVector ImpactDirection = -Hit.ImpactNormal; // Reverse the normal for correct direction
+
+		//	// Calculate impact strength based on character's velocity
+		//	float ImpactStrength = GetVelocity().Size() * 100.0f; // Adjust multiplier as needed
+
+		//	// Apply damage to the GeometryCollection
+		//	//GeometryCollectionComponent->ApplyDamage(ImpactStrength, ImpactPoint, ImpactDirection, 1.0f);
+
+		//	// Optionally, apply an impulse for additional physical response
+		//	float ImpulseStrength = ImpactStrength * 10.0f; // Adjust as needed
+		//	GeometryCollectionComponent->AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
+		//	UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *OtherActor->GetName());
+
+		//}
 	}
 }
 void AMythCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		PlayerController->bShowMouseCursor = true; // Show the mouse cursor
+		PlayerController->bEnableClickEvents = true; // Enable mouse click events
+		PlayerController->bEnableMouseOverEvents = true; // Enable mouse over events
+	}
+
+
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnHit);
 }
 
@@ -143,7 +232,7 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		// Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMythCharacter::StartSprinting);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMythCharacter::StopSprinting);
-
+	    EnhancedInputComponent->BindAction(LeftMouseClickAction, ETriggerEvent::Triggered, this, &AMythCharacter::OnLeftMouseClick);
 	}
 	else
 	{

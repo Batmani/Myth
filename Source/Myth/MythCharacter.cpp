@@ -2,12 +2,16 @@
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/MeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Kismet/GameplayStatics.h"
+//#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private/ApexDestructionModule.cpp"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -16,8 +20,15 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AMythCharacter::AMythCharacter()
 {
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+	//GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+	//GetCapsuleComponent()->SetNotifyRigidBodyCollision(true); // Enables collision notifications
+	
+	//GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnHit);
+
+	//GetMesh()->SetCollisionProfileName(TEXT("Pawn")); // Use an appropriate collision profile
+	//GetMesh()->SetNotifyRigidBodyCollision(true); // Enable hit events
+	//GetMesh()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnMeshHit);
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -50,11 +61,58 @@ AMythCharacter::AMythCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
+//void AMythCharacter::OnMeshHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+//{
+//	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its mesh hitting"));
+//
+//	// Ensure we hit something valid and that it's not ourselves
+//	if (OtherActor && OtherActor != this && OtherComp)
+//	{
+//		// Log the hit for debugging
+//		UE_LOG(LogTemp, Warning, TEXT("Mesh hit actor: %s"), *OtherActor->GetName());
+//
+//		// Example: Apply a force to the other actor if it simulates physics
+//		if (OtherComp->IsSimulatingPhysics())
+//		{
+//			FVector ForceDirection = NormalImpulse.GetSafeNormal();
+//			OtherComp->AddImpulse(ForceDirection * 1000.0f); // Adjust force as needed
+//		}
+//	}
+//}
 
+void AMythCharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	//UE_LOG(LogTemplateCharacter, Warning, TEXT("Applied damage to GeometryCollection at "));
+	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its hitting"));
+	if (OtherActor && OtherActor != this)
+	{
+		UGeometryCollectionComponent* GeometryCollectionComponent = OtherActor->FindComponentByClass<UGeometryCollectionComponent>();
+		if (GeometryCollectionComponent)
+		{
+			// Calculate impact point and direction
+			FVector ImpactPoint = Hit.ImpactPoint;
+			FVector ImpactDirection = -Hit.ImpactNormal; // Reverse the normal for correct direction
+
+			// Calculate impact strength based on character's velocity
+			float ImpactStrength = GetVelocity().Size() * 100.0f; // Adjust multiplier as needed
+
+			// Apply damage to the GeometryCollection
+			//GeometryCollectionComponent->ApplyDamage(ImpactStrength, ImpactPoint, ImpactDirection, 1.0f);
+
+			// Optionally, apply an impulse for additional physical response
+			float ImpulseStrength = ImpactStrength * 10.0f; // Adjust as needed
+			GeometryCollectionComponent->AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
+
+		}
+	}
+}
 void AMythCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnHit);
+
+	GetMesh()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnMeshHit);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +154,8 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AMythCharacter::StartSprinting()
 {
+	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its a s sprintting"));
+
 	GetCharacterMovement()->MaxWalkSpeed = 1000.f; // Increase speed to sprint
 	//UE_LOG(LogTemplateCharacter, Warning, TEXT("Its sprinting"));
 }

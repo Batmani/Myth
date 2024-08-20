@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Projectile.h"
 //#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private/ApexDestructionModule.cpp"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -232,14 +233,36 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		// Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMythCharacter::StartSprinting);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMythCharacter::StopSprinting);
-	    EnhancedInputComponent->BindAction(LeftMouseClickAction, ETriggerEvent::Triggered, this, &AMythCharacter::OnLeftMouseClick);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AMythCharacter::Shoot);
+		EnhancedInputComponent->BindAction(LeftMouseClickAction, ETriggerEvent::Triggered, this, &AMythCharacter::OnLeftMouseClick);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
+void AMythCharacter::Shoot()
+{
+	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its ashooting"));
 
+	if (ProjectileClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		FVector MuzzleLocation = GetMesh()->GetSocketLocation("MuzzleSocket");
+		FRotator MuzzleRotation = GetControlRotation();
+
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+
+		if (Projectile)
+		{
+			FVector LaunchDirection = MuzzleRotation.Vector();
+			Projectile->FireInDirection(LaunchDirection);
+		}
+	}
+}
 void AMythCharacter::StartSprinting()
 {
 	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its a s sprintting"));

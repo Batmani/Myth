@@ -1,10 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Logging/LogMacros.h"
 #include "Projectile.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogProjectile, Log, All);
 
 UCLASS()
 class MYTH_API AProjectile : public AActor
@@ -26,6 +27,10 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
     class UProjectileMovementComponent* ProjectileMovement;
+
+    UFUNCTION()
+    void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 
     void FireInDirection(const FVector& ShootDirection);
 };

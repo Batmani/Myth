@@ -10,9 +10,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/World.h"
-#include "DrawDebugHelpers.h"
 #include "Projectile.h"
 //#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private/ApexDestructionModule.cpp"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -251,7 +248,7 @@ void AMythCharacter::Shoot()
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = GetInstigator();
 
-		FVector MuzzleLocation = GetMesh()->GetSocketLocation("MuzzleSocket");
+		FVector MuzzleLocation = GetMesh()->GetBoneLocation("head");// GetSocketLocation("MuzzleSocket");
 		FRotator MuzzleRotation = GetControlRotation();
 
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);

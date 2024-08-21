@@ -19,6 +19,9 @@ protected:
     virtual void BeginPlay() override;
 
     UFUNCTION()
+    void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+    UFUNCTION()
     void OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo);
 
     UFUNCTION()

@@ -1,7 +1,7 @@
 #include "BreakableObject.h"
 #include "Kismet/GameplayStatics.h"
 #include "PhysicsEngine/RadialForceComponent.h"
-
+#include "PhysicsEngine/BodySetup.h"
 // Sets default values
 ABreakableObject::ABreakableObject()
 {
@@ -22,14 +22,40 @@ ABreakableObject::ABreakableObject()
 void ABreakableObject::BeginPlay()
 {
     Super::BeginPlay();
+    MeshComponent->OnComponentHit.AddDynamic(this, &ABreakableObject::OnComponentHit);
 
-    MeshComponent->OnComponentHit.AddDynamic(this, &ABreakableObject::OnChaosPhysicsCollision);
+    // Bind Chaos Physics collision if available
+  /*  if (UBodySetup* BodySetup = MeshComponent->GetBodySetup())
+    {
+        BodySetup->On OnChaosPhysicsCollision.AddDynamic(this, &ABreakableObject::OnChaosPhysicsCollision);
+    }*/
 }
+
+void ABreakableObject::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    // Filter out collisions with other breakable objects
+    if (OtherActor && OtherActor->IsA(ABreakableObject::StaticClass()))
+    {
+        return;
+    }
+
+    FVector ImpulseDir = NormalImpulse.GetSafeNormal();
+    float ImpulseMag = NormalImpulse.Size();
+
+    MeshComponent->AddTorqueInRadians(ImpulseDir.Cross(FVector::UpVector) * TorqueMult * ImpulseMag);
+
+    if (ImpulseMag > 200.0f)  // Threshold for triggering break event
+    {
+        TriggerBreakEvent();
+    }
+}
+
 
 void ABreakableObject::OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo)
 {
     // Filter out collisions with other breakable objects
-    if (CollisionInfo.OtherActor->IsA(ABreakableObject::StaticClass()))
+    UPrimitiveComponent* OtherComponent = CollisionInfo.Component.Get();
+    if (OtherComponent && OtherComponent->GetOwner() && OtherComponent->GetOwner()->IsA(ABreakableObject::StaticClass()))
     {
         return;
     }

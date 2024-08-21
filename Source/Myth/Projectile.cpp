@@ -11,13 +11,21 @@ AProjectile::AProjectile()
     ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
     RootComponent = ProjectileMesh;
 
+    // Enable simulation generates hit events
+    ProjectileMesh->SetNotifyRigidBodyCollision(true);
+    ProjectileMesh->SetSimulatePhysics(true);
+
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
-    ProjectileMovement->InitialSpeed = 3000.0f;
-    ProjectileMovement->MaxSpeed = 3000.0f;
+    ProjectileMovement->InitialSpeed = 2000.0f;
+    ProjectileMovement->MaxSpeed = 2000.0f;
+    UE_LOG(LogProjectile, Warning, TEXT("Its projectile mesh "));
+
 
 }
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+    UE_LOG(LogProjectile, Warning, TEXT("Its projectile maybe"));
+
     if (OtherComp  )
     {
         UGeometryCollectionComponent* DestructibleComp = Cast<UGeometryCollectionComponent>(OtherComp);
@@ -42,7 +50,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 void AProjectile::BeginPlay()
 {
     Super::BeginPlay();
-    ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+    if (ProjectileMesh)
+    {
+        ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+    }
+
 }
 
 void AProjectile::Tick(float DeltaTime)

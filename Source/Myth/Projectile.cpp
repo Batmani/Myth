@@ -6,9 +6,9 @@
 DEFINE_LOG_CATEGORY(LogProjectile);
 AProjectile::AProjectile()
 {
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
 
-    ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
+    ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
     RootComponent = ProjectileMesh;
 
     // Enable simulation generates hit events
@@ -53,6 +53,8 @@ void AProjectile::BeginPlay()
     if (ProjectileMesh)
     {
         ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+        UE_LOG(LogProjectile, Warning, TEXT("projectile begin play"));
+
     }
 
 }

@@ -10,6 +10,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Field/FieldSystemActor.h"
+#include "Field/FieldSystemComponent.h"
+#include "CombatFieldSystemActor.h"
 #include "Projectile.h"
 //#include "../../../../../../../Program Files/Epic Games/UE_5.4/Engine/Plugins/Runtime/ApexDestruction/Source/ApexDestruction/Private/ApexDestructionModule.cpp"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -196,7 +199,16 @@ void AMythCharacter::BeginPlay()
 		PlayerController->bEnableClickEvents = true; // Enable mouse click events
 		PlayerController->bEnableMouseOverEvents = true; // Enable mouse over events
 	}
-
+	if (FieldSystemActorBP != nullptr)
+	{
+		RightHandFieldSystem = GetWorld()->SpawnActor<ACombatFieldSystemActor>(FieldSystemActorBP, FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f));
+		if (RightHandFieldSystem != nullptr)
+		{
+			RightHandFieldSystem->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("middle_03_r"));
+			RightHandFieldSystem->SetFieldActive(true);
+			RightHandFieldSystem->DrawDebugInfo(false);
+		}
+	}
 
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AMythCharacter::OnHit);
 }

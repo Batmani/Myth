@@ -7,8 +7,7 @@
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "MythFieldSystemComponent.generated.h"
 
-//UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MYTH_API UMythFieldSystemComponent : public UActorComponent
 {
     GENERATED_BODY()

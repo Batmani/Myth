@@ -6,7 +6,7 @@ UMythFieldSystemComponent::UMythFieldSystemComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
 
-    FieldSystemComponent = CreateDefaultSubobject<UFieldSystemComponent>(TEXT("FieldSystemComponent"));
+    FieldSystemComponent = CreateDefaultSubobject<UMythFieldSystemComponent>(TEXT("FieldSystemComponent"));
 }
 
 void UMythFieldSystemComponent::BeginPlay()

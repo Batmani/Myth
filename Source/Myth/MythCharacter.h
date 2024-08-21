@@ -5,6 +5,7 @@
 #include "Logging/LogMacros.h"
 #include "InputAction.h"  // Include this for UInputAction
 #include "EnhancedInputComponent.h"  // Enhanced Input system
+#include "MythFieldSystemComponent.h"
 #include "MythCharacter.generated.h"
 
 class USpringArmComponent;
@@ -59,7 +60,7 @@ class AMythCharacter : public ACharacter
 	TSubclassOf<class AProjectile> ProjectileClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FieldSystem", meta = (AllowPrivateAccess = "true"))
-	UFieldSystemComponent* MythFieldSystemComponent;
+	UMythFieldSystemComponent* MythFieldSystemComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;

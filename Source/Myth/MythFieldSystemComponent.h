@@ -7,8 +7,9 @@
 #include "GeometryCollection/GeometryCollectionComponent.h"
 #include "MythFieldSystemComponent.generated.h"
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class YOURPROJECT_API UMythFieldSystemComponent : public UActorComponent
+//UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+UCLASS()
+class MYTH_API UMythFieldSystemComponent : public UActorComponent
 {
     GENERATED_BODY()
 
@@ -27,7 +28,7 @@ public:
 
 private:
     UPROPERTY(EditAnywhere, Category = "FieldSystem")
-    UFieldSystemComponent* FieldSystemComponent;
+    UMythFieldSystemComponent* FieldSystemComponent;
 
     UPROPERTY(EditAnywhere, Category = "FieldSystem")
     float FieldRadius = 500.0f;

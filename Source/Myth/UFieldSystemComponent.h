@@ -1,0 +1,34 @@
+#pragma once
+#include "CoreMinimal.h"
+
+#include "Components/ActorComponent.h"
+#include "Field/FieldSystemActor.h"
+#include "Field/FieldSystemComponent.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
+#include "FieldSystemComponent.generated.h"
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class MYTH_API UFieldSystemComponent : public UActorComponent
+{
+    GENERATED_BODY()
+
+public:
+    UFieldSystemComponent();
+
+protected:
+    virtual void BeginPlay() override;
+
+public:
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+    // Apply damage to the GeometryCollectionComponent within the field
+    UFUNCTION(BlueprintCallable, Category = "FieldSystem")
+    void ApplyDamageToGeometryCollection(float Damage, float Radius, const FVector& Position);
+
+private:
+    UPROPERTY(EditAnywhere, Category = "FieldSystem")
+    UFieldSystemComponent* FieldSystemComponent;
+
+    UPROPERTY(EditAnywhere, Category = "FieldSystem")
+    float FieldRadius = 500.0f;
+};

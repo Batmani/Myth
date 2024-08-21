@@ -1,7 +1,9 @@
 #include "Projectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GeometryCollection/GeometryCollectionActor.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Engine/DamageEvents.h"
 
 DEFINE_LOG_CATEGORY(LogProjectile);
 AProjectile::AProjectile()
@@ -24,25 +26,40 @@ AProjectile::AProjectile()
 }
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-    UE_LOG(LogProjectile, Warning, TEXT("Its projectile maybe"));
-
-    if (OtherComp  )
+    UE_LOG(LogProjectile, Warning, TEXT("Its projectileaww maybe"));
+    if (OtherComp)
     {
-        UGeometryCollectionComponent* DestructibleComp = Cast<UGeometryCollectionComponent>(OtherComp);
+        AGeometryCollectionActor* DestructibleComp = Cast<AGeometryCollectionActor>(OtherComp);
         if (DestructibleComp)
         {
             FVector ImpactPoint = Hit.ImpactPoint;
             FVector ImpactDirection = NormalImpulse.GetSafeNormal();
             float ImpulseStrength = 10000.0f; // Adjust this value as needed
-
             // Apply impulse at the point of impact
-            //DestructibleComp->ApplyDamage(ImpulseStrength, ImpactPoint, ImpactDirection, 200.0f); // The last value is the radius of damage, adjust it as needed
-            DestructibleComp->AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
+            float damageTaken = DestructibleComp->TakeDamage(ImpulseStrength, FDamageEvent(),
+                GetInstigatorController(), this);// The last value is the radius of damage, adjust it as needed
 
-            UE_LOG(LogProjectile, Warning, TEXT("Its projectile"));
+            UE_LOG(LogProjectile, Warning, TEXT("Actor damage taken: %f"), damageTaken);
 
         }
     }
+    //if (OtherComp  )
+    //{
+    //    UGeometryCollectionComponent* DestructibleComp = Cast<UGeometryCollectionComponent>(OtherComp);
+    //    if (DestructibleComp)
+    //    {
+    //        FVector ImpactPoint = Hit.ImpactPoint;
+    //        FVector ImpactDirection = NormalImpulse.GetSafeNormal();
+    //        float ImpulseStrength = 10000.0f; // Adjust this value as needed
+    //        // Apply impulse at the point of impact
+    //        DestructibleComp->ReceiveComponentDamage(ImpulseStrength, FDamageEvent(),
+    //            GetInstigatorController(), this);// The last value is the radius of damage, adjust it as needed
+    //        DestructibleComp-> AddImpulseAtLocation(ImpactDirection * ImpulseStrength, ImpactPoint);
+    //         
+    //        UE_LOG(LogProjectile, Warning, TEXT("Its new projectile"));
+
+    //    }
+    //}
 
     // Destroy the projectile after it hits something
     Destroy();

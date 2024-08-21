@@ -57,7 +57,7 @@ AMythCharacter::AMythCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
+	MythFieldSystemComponent = CreateDefaultSubobject<UFieldSystemComponent>(TEXT("FieldSystemComponent"));
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
@@ -241,26 +241,29 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 void AMythCharacter::Shoot()
 {
 
-	if (ProjectileClass)
-	{
-		FActorSpawnParameters SpawnParams;
-		//SpawnParams.Owner = this;
-		SpawnParams.Instigator = this;
+	//if (ProjectileClass)
+	//{
+	//	FActorSpawnParameters SpawnParams;
+	//	//SpawnParams.Owner = this;
+	//	SpawnParams.Instigator = this;
 
-		FVector MuzzleLocation = GetMesh()->GetBoneLocation("head") ;// GetSocketLocation("MuzzleSocket");
-		FRotator MuzzleRotation = Controller->GetControlRotation();
+	//	FVector MuzzleLocation = GetMesh()->GetBoneLocation("head") ;// GetSocketLocation("MuzzleSocket");
+	//	FRotator MuzzleRotation = Controller->GetControlRotation();
 
-		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
-			ProjectileClass, MuzzleLocation
-			, MuzzleRotation, SpawnParams);
-		UE_LOG(LogTemplateCharacter, Warning, TEXT("Its ashooting"));
+	//	AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
+	//		ProjectileClass, MuzzleLocation
+	//		, MuzzleRotation, SpawnParams);
+	//	UE_LOG(LogTemplateCharacter, Warning, TEXT("Its ashooting"));
 
-		/*if (Projectile)
-		{
-			FVector LaunchDirection = MuzzleRotation.Vector();
-			Projectile->FireInDirection(LaunchDirection);
-		}*/
-	}
+	//	/*if (Projectile)
+	//	{
+	//		FVector LaunchDirection = MuzzleRotation.Vector();
+	//		Projectile->FireInDirection(LaunchDirection);
+	//	}*/
+	//}
+
+	FVector MuzzleLocation = GetMesh()->GetBoneLocation("head");
+	MythFieldSystemComponent->ApplyDamageToGeometryCollection(100.0f, 500.0f, MuzzleLocation);
 }
 void AMythCharacter::StartSprinting()
 {

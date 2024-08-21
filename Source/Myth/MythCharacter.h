@@ -12,7 +12,6 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
-class ACombatFieldSystemActor;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -60,18 +59,14 @@ class AMythCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class AProjectile> ProjectileClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FieldSystem", meta = (AllowPrivateAccess = "true"))
-	UMythFieldSystemComponent* MythFieldSystemComponent;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FieldSystem", meta = (AllowPrivateAccess = "true"))
+	UMythFieldSystemComponent* MythFieldSystemComponent;*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ShootAction;
 
 	UFUNCTION()
 	void Shoot();
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ACombatFieldSystemActor> FieldSystemActorBP = nullptr;
 	/*UFUNCTION()
     void OnMeshHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);*/
 public:

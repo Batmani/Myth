@@ -2,6 +2,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "PhysicsEngine/BodySetup.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
+
 // Sets default values
 ABreakableObject::ABreakableObject()
 {
@@ -17,6 +19,9 @@ ABreakableObject::ABreakableObject()
     DestructionField->Radius = FieldRadius;
     DestructionField->ForceStrength = RadialMagnitude;
     DestructionField->DestructibleDamage = 0.0f;
+
+    GeometryCollection = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("GeometryCollection"));
+    GeometryCollection->SetupAttachment(RootComponent);
 }
 
 void ABreakableObject::BeginPlay()

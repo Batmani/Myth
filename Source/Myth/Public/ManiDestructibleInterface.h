@@ -22,5 +22,5 @@ class IManiDestructibleInterface
 
 public:
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Destruction")
-    void BulletImpact(const FVector& ImpactPoint, float Radius);
+    void BulletImpact(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius);
 };

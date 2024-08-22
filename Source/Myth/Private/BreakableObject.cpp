@@ -25,6 +25,19 @@ ABreakableObject::ABreakableObject()
     GeometryCollection->SetupAttachment(RootComponent);
 }
 
+void ABreakableObject::BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius)
+{
+
+    // Example logic for handling a bullet impact.
+    FVector ImpactLocation = HitInfo.ImpactPoint;
+
+    // If OverrideRadius is true, use the provided Radius; otherwise, use a default value.
+    float ActualRadius =   DefaultRadius;
+
+    // Apply the destruction field at the impact location
+    ApplyDestructionField(ImpactLocation);
+}
+
 void ABreakableObject::BeginPlay()
 {
     Super::BeginPlay();
@@ -40,15 +53,10 @@ void ABreakableObject::BeginPlay()
 void ABreakableObject::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 
-    if (OtherActor && OtherActor != this)
+    if (OtherActor && OtherActor->Implements<UManiDestructibleInterface>())
     {
-        // Check if the other actor implements the Destructible interface
-        if (OtherActor->GetClass()->ImplementsInterface(UManiDestructibleInterface::StaticClass()))
-        {
-            // Apply the bullet impact or damage logic
-            IManiDestructibleInterface::Execute_BulletImpact(OtherActor, Hit , true, DefaultRadius);
-        }
-    }
+        IManiDestructibleInterface::Execute_BulletImpact( OtherActor, OtherComp, Hit, Hit.ImpactPoint, true, DefaultRadius);
+    } 
     // Filter out collisions with other breakable objects
     //if (OtherActor && OtherActor->IsA(ABreakableObject::StaticClass()))
     //{
@@ -86,25 +94,25 @@ void ABreakableObject::OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo&
         TriggerBreakEvent();
     }
 }
-void ABreakableObject::BulletImpact_Implementation(const FHitResult& HitInfo, bool OverrideRadius, float Radius)
-{
-    // Example logic for handling a bullet impact.
-    FVector ImpactLocation = HitInfo.ImpactPoint;
-
-    // If OverrideRadius is true, use the provided Radius; otherwise, use a default value.
-    float ActualRadius = OverrideRadius ? Radius : DefaultRadius;
-
-    // Apply the destruction field at the impact location
-    ApplyDestructionField(ImpactLocation);
-
-    // Play a sound or trigger other effects as needed
-    /*if (BreakingSound)
-    {
-        UGameplayStatics::PlaySoundAtLocation(this, BreakingSound, GetActorLocation());
-    }*/
-
-    // Additional logic can be added here based on the specifics of your game
-}
+//void ABreakableObject::BulletImpact_Implementation(const FHitResult& HitInfo, bool OverrideRadius, float Radius)
+//{
+//    // Example logic for handling a bullet impact.
+//    FVector ImpactLocation = HitInfo.ImpactPoint;
+//
+//    // If OverrideRadius is true, use the provided Radius; otherwise, use a default value.
+//    float ActualRadius = OverrideRadius ? Radius : DefaultRadius;
+//
+//    // Apply the destruction field at the impact location
+//    ApplyDestructionField(ImpactLocation);
+//
+//    // Play a sound or trigger other effects as needed
+//    /*if (BreakingSound)
+//    {
+//        UGameplayStatics::PlaySoundAtLocation(this, BreakingSound, GetActorLocation());
+//    }*/
+//
+//    // Additional logic can be added here based on the specifics of your game
+//}
 void ABreakableObject::OnBulletImpact(const FVector& ImpactPoint, float ImpactRadius)
 {
     SetActorEnableCollision(true);  // Force dynamic state

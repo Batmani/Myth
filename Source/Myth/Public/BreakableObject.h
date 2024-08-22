@@ -5,9 +5,10 @@
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Chaos/ChaosGameplayEventDispatcher.h"
 #include "PDA_ChaosBreakable.h"
+#include "ManiDestructibleInterface.h"
 #include "BreakableObject.generated.h"
 
-UCLASS(config = Game)
+UCLASS()
 class MYTH_API ABreakableObject : public AActor, public IManiDestructibleInterface
 {
 	GENERATED_BODY()
@@ -15,7 +16,10 @@ class MYTH_API ABreakableObject : public AActor, public IManiDestructibleInterfa
 public:
 	// Sets default values for this actor's properties
 	ABreakableObject();
-	virtual void BulletImpact_Implementation(const FHitResult& HitInfo, bool OverrideRadius, float Radius) override;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Destruction")
+	void BulletImpact(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius);
+	virtual void BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius) override;
+	//virtual void IManiDestructibleInterface::BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius ) override;
 protected:
 	virtual void BeginPlay() override;
 

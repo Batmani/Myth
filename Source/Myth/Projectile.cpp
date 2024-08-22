@@ -35,11 +35,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
     UE_LOG(LogProjectile, Warning, TEXT("Its projectileaww maybe"));
     if (OtherActor && OtherActor != this)
     {
-        // Check if the other actor implements the Destructible interface
+         //Check if the other actor implements the Destructible interface
         if (OtherActor->GetClass()->ImplementsInterface(UManiDestructibleInterface::StaticClass()))
         {
             // Apply the bullet impact or damage logic
-            IManiDestructibleInterface::Execute_BulletImpact(OtherActor, Hit.ImpactPoint, 55);
+            IManiDestructibleInterface::Execute_BulletImpact(OtherActor, OtherComp, Hit,  Hit.ImpactPoint,true, 55);
         }
 
         // Destroy the bullet after impact

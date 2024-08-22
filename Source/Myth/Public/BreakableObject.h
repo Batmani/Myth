@@ -7,15 +7,15 @@
 #include "PDA_ChaosBreakable.h"
 #include "BreakableObject.generated.h"
 
-UCLASS()
-class MYTH_API ABreakableObject : public AActor
+UCLASS(config = Game)
+class MYTH_API ABreakableObject : public AActor, public IManiDestructibleInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
 	ABreakableObject();
-
+	virtual void BulletImpact_Implementation(const FHitResult& HitInfo, bool OverrideRadius, float Radius) override;
 protected:
 	virtual void BeginPlay() override;
 
@@ -55,6 +55,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
 	float MinDamageRadius = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
+	float DefaultRadius = 100.0f;
 
 	/*     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	 TSubclassOf<UDestructionParticle> BreakingEffects;*/

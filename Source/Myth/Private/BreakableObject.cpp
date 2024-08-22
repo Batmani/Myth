@@ -3,6 +3,7 @@
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "ManiDestructibleInterface.h"
+//#include "Engine/EditorResources/FieldNodes/FS_MasterField/FS_MasterField.h";
 #include "GeometryCollection/GeometryCollectionComponent.h"
 
 // Sets default values
@@ -29,20 +30,38 @@ void ABreakableObject::BulletImpact_Implementation(UPrimitiveComponent* OtherCom
 {
 
     // Example logic for handling a bullet impact.
-    FVector ImpactLocation = HitInfo.ImpactPoint;
+    //FVector ImpactLocation = HitInfo.ImpactPoint;
 
-    // If OverrideRadius is true, use the provided Radius; otherwise, use a default value.
-    float ActualRadius =   DefaultRadius;
+    //// If OverrideRadius is true, use the provided Radius; otherwise, use a default value.
+    //float ActualRadius =   DefaultRadius;
+    //FVector SpawnLocation = HitInfo.ImpactPoint;
+    //FRotator SpawnRotation = FRotator::ZeroRotator;
+    //FActorSpawnParameters SpawnParams;
+    //SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    // Apply the destruction field at the impact location
-    ApplyDestructionField(ImpactLocation);
+    //ABP_DestructionField* DestructionField = GetWorld()->SpawnActor<ABP_DestructionField>(DestructionFieldClass, SpawnLocation, SpawnRotation, SpawnParams);
+
+    //if (DestructionField)
+    //{
+    //    // Set properties of the DestructionField based on the Blueprint logic
+    //    DestructionField->TorqueMult = 10.0f;
+    //    DestructionField->TorqueVectorOverride = FVector(0.0f, 0.0f, 0.0f);  // Use your actual calculation here
+    //    DestructionField->RadialMagnitude = 200.0f;
+    //    DestructionField->DirectionalMagnitude = 250.0f;
+    //    DestructionField->DirectionalVelocityVector = FVector(0.0f, 0.0f, 0.0f);  // Use your actual calculation here
+
+    //    // Trigger the Destruction Field logic
+    //    DestructionField->Trigger();
+    //}
+    //// Apply the destruction field at the impact location
+    //ApplyDestructionField(ImpactLocation);
 }
 
 void ABreakableObject::BeginPlay()
 {
     Super::BeginPlay();
     MeshComponent->OnComponentHit.AddDynamic(this, &ABreakableObject::OnComponentHit);
-
+    InitializeFromDataAsset();
     // Bind Chaos Physics collision if available
   /*  if (UBodySetup* BodySetup = MeshComponent->GetBodySetup())
     {
@@ -113,21 +132,49 @@ void ABreakableObject::OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo&
 //
 //    // Additional logic can be added here based on the specifics of your game
 //}
-void ABreakableObject::OnBulletImpact(const FVector& ImpactPoint, float ImpactRadius)
+void ABreakableObject::OnBulletImpact(const FHitResult& HitInfo, float Radius)
 {
-    SetActorEnableCollision(true);  // Force dynamic state
-    ApplyDestructionField(ImpactPoint);
-
- /*   float DamageRadius = FMath::Max(ImpactRadius, MinDamageRadius);
-    FVector SpawnLocation = ImpactPoint + FVector(0.0f, 0.0f, DamageRadius);*/
-
-    // Spawn destruction field (particle effect)
-  /*  if (BreakingEffects)
+    if (DestructionSphereToSpawn)
     {
-        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BreakingEffects, SpawnLocation, FRotator::ZeroRotator, FVector(DamageRadius));
-    }*/
-}
+        FActorSpawnParameters SpawnParams;
+        SpawnParams.Owner = this;
+        SpawnParams.Instigator = GetInstigator();
 
+        // Spawn the destruction field
+        AActor* DestructionField = GetWorld()->SpawnActor<AActor>(
+            DestructionSphereToSpawn,
+            HitInfo.ImpactPoint,
+            FRotator::ZeroRotator,
+            SpawnParams
+        );
+
+        //if (DestructionField)
+        //{
+        //    FS_MasterField* DestructionFieldMaster = Cast<FS_Master>(DestructionField);
+        //    // Set parameters on the destruction field
+        //    DestructionField->SetTorqueMultiplier(TorqueMultiplier);
+        //    DestructionField->SetTorqueVectorOverride(TorqueVectorOverride);
+        //    DestructionField->SetRadialMagnitude(RadialMagnitude);
+        //    DestructionField->SetDirectionalMagnitude(DirectionalMagnitude);
+        //    DestructionField->SetDirectionalVelocityVector(DirectionalVelocityVector);
+
+        //    // Calculate and apply direction vector
+        //    CalculateDirectionVector(HitInfo);
+
+        //    // Trigger the destruction logic
+        //    DestructionField->TriggerDestruction();
+        //}
+    }
+}
+//void ABreakableObject::CalculateDirectionVector(const FHitResult& HitInfo)
+//{
+//    // Calculate a directional vector based on the impact hit result
+//    FVector CrossProduct = FVector::CrossProduct(HitInfo.Normal, FVector::UpVector);
+//    FVector DirectionVector = CrossProduct * DirectionalMagnitude;
+//
+//    // Apply the calculated direction vector
+//    DirectionalVelocityVector = DirectionVector;
+//}
 void ABreakableObject::TriggerBreakEvent()
 {
     // Switch material if relevant
@@ -146,6 +193,41 @@ void ABreakableObject::TriggerBreakEvent()
     // Additional break logic (e.g., spawning debris, changing mesh, etc.)
 }
 
+void ABreakableObject::InitializeFromDataAsset()
+{
+    if (DataAsset)
+    {
+        // Set the Geometry Collection
+        if (DataAsset->GeometryCollection)
+        {
+            GeometryCollection->SetRestCollection(DataAsset->GeometryCollection);
+        }
+
+        // Set removal on sleep if required
+
+        // Set the break sound
+
+        // Set the override materials
+        for (const auto& Elem : DataAsset->OverrideMaterials)
+        {
+            int32 MaterialIndex = Elem.Key;
+            UMaterialInterface* Material = Elem.Value;
+            GeometryCollection->SetMaterial(MaterialIndex, Material);
+        }
+
+        // Set damage thresholds
+
+        // Set override damage thresholds
+
+        // Set damage radius
+
+        // Set physical material
+        if (DataAsset->PhysicalMaterial)
+        {
+            GeometryCollection->BodyInstance.SetPhysMaterialOverride(DataAsset->PhysicalMaterial);
+        }
+    }
+}
 void ABreakableObject::ApplyDestructionField(const FVector& FieldLocation)
 {
     DestructionField->SetWorldLocation(FieldLocation);

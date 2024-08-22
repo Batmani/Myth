@@ -20,8 +20,8 @@ AProjectile::AProjectile()
     RootComponent = ProjectileMesh;
 
     // Enable simulation generates hit events
-    ProjectileMesh->SetNotifyRigidBodyCollision(true);
-    ProjectileMesh->SetSimulatePhysics(true);
+    //ProjectileMesh->SetNotifyRigidBodyCollision(true);
+    //ProjectileMesh->SetSimulatePhysics(true);
 
     ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
     ProjectileMovement->InitialSpeed = 2000.0f;
@@ -40,10 +40,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
         {
             // Apply the bullet impact or damage logic
             IManiDestructibleInterface::Execute_BulletImpact(OtherActor, OtherComp, Hit,  Hit.ImpactPoint,true, 55);
+            UE_LOG(LogProjectile, Warning, TEXT("execute bullet maybe"));
+            Destroy();
         }
 
         // Destroy the bullet after impact
-        Destroy();
     }
     //if (OtherComp)
     //{

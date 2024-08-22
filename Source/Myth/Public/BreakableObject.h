@@ -30,7 +30,7 @@ protected:
 	void OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo);
 
 	UFUNCTION()
-	void OnBulletImpact(const FVector& ImpactPoint, float ImpactRadius);
+	void OnBulletImpact(const FHitResult& HitInfo, float Radius);
 
 	UFUNCTION()
 	void TriggerBreakEvent();
@@ -39,36 +39,43 @@ protected:
 	void ApplyDestructionField(const FVector& FieldLocation);
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* MeshComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	URadialForceComponent* DestructionField;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chaos Destruction")
+	TSubclassOf<AActor> DestructionSphereToSpawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UGeometryCollectionComponent* GeometryCollection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float TorqueMult = 15.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float RadialMagnitude = 2000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	float FieldRadius = 150.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
 	float MinDamageRadius = 10.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
 	float DefaultRadius = 100.0f;
 
-	/*     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	/*     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	 TSubclassOf<UDestructionParticle> BreakingEffects;*/
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound", meta = (AllowPrivateAccess = "true"))
 	USoundBase* BreakingSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Chaos", meta = (AllowPrivateAccess = "true"))
     UPDA_ChaosBreakable* DataAsset; 
+
+	void InitializeFromDataAsset();
+
+	//void CalculateDirectionVector(const FHitResult& HitInfo);
 };

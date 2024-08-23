@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Field/FieldSystemObjects.h"
 #include "GameFramework/Actor.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Chaos/ChaosGameplayEventDispatcher.h"
@@ -19,7 +20,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Destruction")
 	void BulletImpact(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius);
 	virtual void BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius) override;
-	//virtual void IManiDestructibleInterface::BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius ) override;
+
+
+	void ApplyDestructionField(const FVector& ImpactPoint);
 protected:
 	virtual void BeginPlay() override;
 
@@ -29,24 +32,34 @@ protected:
 	UFUNCTION()
 	void OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo& CollisionInfo);
 
+	void HandleChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
+
 	UFUNCTION()
 	void OnBulletImpact(const FHitResult& HitInfo, float Radius);
 
 	UFUNCTION()
 	void TriggerBreakEvent();
 
-	UFUNCTION()
-	void ApplyDestructionField(const FVector& FieldLocation);
+ 
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* MeshComponent;
+	/** Please add a variable description */
+	//UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Chaos")
+	//FChaosBreakEvent ChaosBreakEvent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UFieldSystemComponent* FieldSystemComponent;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	URadialForceComponent* DestructionField;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Chaos Destruction")
-	TSubclassOf<AActor> DestructionSphereToSpawn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Destruction", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> DestructionFieldClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Destruction", meta = (AllowPrivateAccess = "true"))
+	AActor* MasterField;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UGeometryCollectionComponent* GeometryCollection;

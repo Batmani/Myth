@@ -253,7 +253,7 @@ void AMythCharacter::Shoot()
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
 			ProjectileClass, MuzzleLocation
 			, MuzzleRotation, SpawnParams);
-		UE_LOG(LogTemplateCharacter, Warning, TEXT("Its ashooting"));
+		//UE_LOG(LogTemplateCharacter, Warning, TEXT("Its ashooting"));
 
 		/*if (Projectile)
 		{

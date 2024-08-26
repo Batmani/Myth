@@ -15,14 +15,14 @@
 DEFINE_LOG_CATEGORY(LogProjectile);
 AProjectile::AProjectile()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	RootComponent = ProjectileMesh;
 
 	// Enable simulation generates hit events
-	//ProjectileMesh->SetNotifyRigidBodyCollision(true);
-	//ProjectileMesh->SetSimulatePhysics(true);
+	ProjectileMesh->SetNotifyRigidBodyCollision(true);
+	ProjectileMesh->SetSimulatePhysics(true);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 2000.0f;
@@ -33,17 +33,17 @@ AProjectile::AProjectile()
 }
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogProjectile, Warning, TEXT("Its o maybe"));
 	if (OtherActor && OtherActor != this)
 	{
-		//if (ABreakableObject* BreakableObject = Cast<ABreakableObject>(OtherActor))
-		//{
-		//	// Implement the break logic here
-		//	BreakableObject->ApplyDestructionField(Hit.ImpactPoint); // Assuming your breakable object class has a Break() method
+		if (ABreakableObject* BreakableObject = Cast<ABreakableObject>(OtherActor))
+		{
+			UE_LOG(LogProjectile, Warning, TEXT("Its onhit o maybe"));
+			// Implement the break logic here
+			BreakableObject->ApplyDestructionField(Hit); // Assuming your breakable object class has a Break() method
 
-		//	// Destroy the projectile after the hit
-		//	Destroy();
-		//}
+			// Destroy the projectile after the hit
+			Destroy();
+		}
 
 
 		//IManiDestructibleInterface::Execute_BulletImpact(OtherActor, OtherComp, Hit, Hit.ImpactPoint, true, 55);

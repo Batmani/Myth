@@ -22,7 +22,7 @@ public:
 	virtual void BulletImpact_Implementation(UPrimitiveComponent* OtherComp, const FHitResult& HitInfo, const FVector& ImpactPoint, bool OverrideRadius, float Radius) override;
 
 
-	void ApplyDestructionField(const FVector& ImpactPoint);
+	void ApplyDestructionField(const FHitResult& ImpactPoint);
 protected:
 	virtual void BeginPlay() override;
 
@@ -43,8 +43,8 @@ protected:
  
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* MeshComponent;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* MeshComponent;*/
 	/** Please add a variable description */
 	//UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Chaos")
 	//FChaosBreakEvent ChaosBreakEvent;

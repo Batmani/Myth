@@ -80,7 +80,7 @@ void ABreakableObject::ApplyDestructionField(const FVector& ImpactPoint)
 	/*if (bHasBroken)
 		return;*/
 	URadialFalloff* RadialFalloff = NewObject<URadialFalloff>();
-	RadialFalloff->SetRadialFalloff(RadialMagnitude, 0.f, 1.f, 0.f, FieldRadius, ImpactPoint, EFieldFalloffType::Field_FallOff_None);
+	RadialFalloff->SetRadialFalloff(RadialMagnitude, 0.f, 1.f, 1.f, FieldRadius, ImpactPoint, EFieldFalloffType::Field_FallOff_None);
 	/*FieldSystemComponent->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, RadialFalloff);
 
 	RadialVector = RadialVector->SetRadialVector(ForceMagnitude, GetActorLocation());

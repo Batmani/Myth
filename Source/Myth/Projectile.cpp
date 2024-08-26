@@ -21,8 +21,8 @@ AProjectile::AProjectile()
 	RootComponent = ProjectileMesh;
 
 	// Enable simulation generates hit events
-	ProjectileMesh->SetNotifyRigidBodyCollision(true);
-	ProjectileMesh->SetSimulatePhysics(true);
+	//ProjectileMesh->SetNotifyRigidBodyCollision(true);
+	//ProjectileMesh->SetSimulatePhysics(true);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 2000.0f;

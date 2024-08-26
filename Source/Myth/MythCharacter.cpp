@@ -231,7 +231,6 @@ void AMythCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AMythCharacter::StartSprinting);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AMythCharacter::StopSprinting);
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Started, this, &AMythCharacter::Shoot);
-		EnhancedInputComponent->BindAction(LeftMouseClickAction, ETriggerEvent::Triggered, this, &AMythCharacter::OnLeftMouseClick);
 	}
 	else
 	{

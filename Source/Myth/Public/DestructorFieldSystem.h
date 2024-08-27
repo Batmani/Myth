@@ -20,7 +20,7 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     UFUNCTION(BlueprintCallable, Category = "Destruction")
-    void Explode();
+    void Explode( );
 
     UFUNCTION(BlueprintCallable, Category = "Destruction")
     void SpawnAtLocation(const FVector& Location);
@@ -33,6 +33,12 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
     float SphereRadius;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Destruction", meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<AActor> DestructionFieldClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Destruction", meta = (AllowPrivateAccess = "true"))
+    AActor* MasterField;
 
 protected:
     virtual void BeginPlay() override;

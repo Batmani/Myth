@@ -7,68 +7,128 @@
 
 ADestructorFieldSystem::ADestructorFieldSystem()
 {
-    PrimaryActorTick.bCanEverTick = true;
+	/*static ConstructorHelpers::FClassFinder<AActor> DestructionFieldBPClass(TEXT("/Game/NextGenDestruction/Blueprints/Actors/BP_DestructionField.BP_DestructionField_C"));
+	if (DestructionFieldBPClass.Succeeded())
+	{
+		DestructionFieldClass = DestructionFieldBPClass.Class;
+		UE_LOG(LogTemp, Warning, TEXT("Field class worked!"));
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Field class nope "));
 
-    CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-    CollisionSphere->SetSphereRadius(SphereRadius, true);
-    CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndProbe);
-    CollisionSphere->SetupAttachment(RootComponent);
-    RootComponent = CollisionSphere;
-    CollisionSphere->SetCollisionProfileName(TEXT("NoCollision"));
-    CollisionSphere->SetGenerateOverlapEvents(false);
+	}*/
 
-    FieldSystem = CreateDefaultSubobject<UFieldSystemComponent>(TEXT("FieldSystem"));
-    FieldSystem->SetupAttachment(RootComponent);
+	PrimaryActorTick.bCanEverTick = true;
+	SphereRadius = 100.0f;
 
-    FalloffMagnitude = 1000000.0f;
-    VectorMagnitude = 10000.0f;
-    SphereRadius = 200.0f;
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	CollisionSphere->SetSphereRadius(SphereRadius, true);
+	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndProbe);
+	CollisionSphere->SetupAttachment(RootComponent);
+	RootComponent = CollisionSphere;
+	CollisionSphere->SetCollisionProfileName(TEXT("NoCollision"));
+	CollisionSphere->SetGenerateOverlapEvents(false);
+
+	FieldSystem = CreateDefaultSubobject<UFieldSystemComponent>(TEXT("FieldSystem"));
+	FieldSystem->SetupAttachment(RootComponent);
+
+	FalloffMagnitude = 1000000.0f;
+	VectorMagnitude = 10000.0f;
 }
 
 void ADestructorFieldSystem::Tick(float DeltaTime)
 {
-    Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime);
 }
 
 void ADestructorFieldSystem::BeginPlay()
 {
 	Super::BeginPlay();
-    CollisionSphere->SetSphereRadius(SphereRadius);
-	 
+	CollisionSphere->SetSphereRadius(SphereRadius);
+
 }
 
 void ADestructorFieldSystem::Explode()
 {
-    FVector SphereLoc = CollisionSphere->GetComponentLocation();
-    URadialFalloff* RadialFalloff = NewObject<URadialFalloff>();
 
-    UFieldNodeBase* RadialFalloffNode = RadialFalloff->SetRadialFalloff(
-        FalloffMagnitude,
-        0.f,
-        1.f,
-        0.f,
-        CollisionSphere->GetScaledSphereRadius(),
-        SphereLoc,
-        EFieldFalloffType::Field_FallOff_None
-    );
 
-    //FieldSystem->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
 
-    URadialVector* RadialVector = NewObject<URadialVector>();
-    
-    UFieldNodeBase* RadialVectorNode = RadialVector->SetRadialVector(VectorMagnitude, SphereLoc);
+	//if (DestructionFieldClass)
+	//{
+	//	MasterField = GetWorld()->SpawnActor<AActor>(DestructionFieldClass, GetActorLocation(), FRotator::ZeroRotator);
+	//	if (MasterField)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("master class worked!"));
+	//	}
+	//	else {
+	//		UE_LOG(LogTemp, Warning, TEXT("Field class nope "));
 
-	UCullingField* CullingField = NewObject<UCullingField>();
-    UFieldNodeBase* CullingFieldNode = CullingField->SetCullingField(RadialFalloffNode, RadialVectorNode, Field_Culling_Inside);
+	//	}
 
-    // Apply the CullingField to the FieldSystemComponent
-    FieldSystem->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, CullingFieldNode);
+	//}
+	struct FDynamicArgs
+	{
+		float Magnitude;                             // Equivalent to Parms.Magnitude
+		EFieldFalloffType FalloffType;               // Equivalent to Parms.FalloffType
+		FVector2D Param_FalloffMinMax;               // Equivalent to Parms.Param_FalloffMinMax
+		UFieldNodeBase* OperatorField = nullptr;     // Equivalent to Parms.OperatorField
+		UCullingField* CullingField; 			  // Equivalent to Parms.CullingField
+	};
 
+	FDynamicArgs Args;
+
+	// Assign the parameters
+	Args.Magnitude = FalloffMagnitude;  // Set the magnitude
+	Args.FalloffType = Field_Falloff_Linear;  // Set the falloff type
+	Args.Param_FalloffMinMax = FVector2D(0, 1);  // Set the falloff min-max vector
+	Args.OperatorField = nullptr;  // Set the operator field
+
+
+	//UFunction* findTrigger = MasterField->FindFunction(TEXT("FalloffAndCullSwitch_Main"));
+	//if (findTrigger)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Function '%s' found successfully in class '%s'!"), *findTrigger->GetName(), *MasterField->GetClass()->GetName());
+
+	//	//MasterField->ProcessEvent(findTrigger, &Args);
+
+	//	if (Args.CullingField != nullptr)
+	//	{
+	//		//FString CullingOperation = StaticEnum<EFieldCullingOperationType>()->GetNameStringByValue((int64)Args.CullingField->Operation);
+	//		UE_LOG(LogTemp, Warning, TEXT("cull not null "));
+
+	//		/*		 UE_LOG(LogTemp, Warning, TEXT("UCullingField Info:   CullingOperation: %s"),
+	//					 *CullingOperation); */
+	//	}
+	//}
+	FVector SphereLoc = CollisionSphere->GetComponentLocation();
+	URadialFalloff* RadialFalloff = NewObject<URadialFalloff>();
+
+	UFieldNodeBase* RadialFalloffNode = RadialFalloff->SetRadialFalloff(
+		FalloffMagnitude,
+		0.f,
+		1.f,
+		0.f,
+		CollisionSphere->GetScaledSphereRadius(),
+		SphereLoc,
+		EFieldFalloffType::Field_Falloff_Linear
+	);
+
+	FieldSystem->ApplyPhysicsField(true, EFieldPhysicsType::Field_InternalClusterStrain, nullptr, RadialFalloff);
+
+	   //URadialVector* RadialVector = NewObject<URadialVector>();
+	   //
+	   //UFieldNodeBase* RadialVectorNode = RadialVector->SetRadialVector(VectorMagnitude, SphereLoc);
+
+	   //UCullingField* CullingField = NewObject<UCullingField>();
+	   //UFieldNodeBase* CullingFieldNode = CullingField->SetCullingField(RadialFalloffNode, RadialVectorNode, Field_Culling_Outside);
+
+	   //// Apply the CullingField to the FieldSystemComponent
+	   //FieldSystem->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, CullingFieldNode);
 	Destroy();
 }
 
 void ADestructorFieldSystem::SpawnAtLocation(const FVector& Location)
 {
-    SetActorLocation(Location);
-    Explode();
+	SetActorLocation(Location);
+	//Explode();
 }

@@ -46,10 +46,10 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 		{
 			UE_LOG(LogProjectile, Warning, TEXT("Its onhit o maybe"));
 			// Implement the break logic here
-			BreakableObject->ApplyDestructionField(Hit); // Assuming your breakable object class has a Break() method
-			UE_LOG(LogProjectile, Warning, TEXT("Its impul"));
-			OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
-			BreakableObject->BulletImpact(OtherComp, Hit, Hit.ImpactPoint, true, 55);
+			//BreakableObject->ApplyDestructionField(Hit); // Assuming your breakable object class has a Break() method
+			//UE_LOG(LogProjectile, Warning, TEXT("Its impul"));
+			//OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
+			//BreakableObject->BulletImpact(OtherComp, Hit, Hit.ImpactPoint, true, 55);
 			FVector HitLocation = Hit.Location;
 			FActorSpawnParameters SpawnParams;
 			ADestructorFieldSystem* DestructorField = GetWorld()->SpawnActor<ADestructorFieldSystem>(
@@ -65,10 +65,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 				DestructorField->SphereRadius = SphereRadius;
 				UE_LOG(LogProjectile, Warning, TEXT("Its destr"));
 				DestructorField->Explode();
+				
 			}
 
 			// Destroy the projectile after the hit
-			Destroy();
+			//Destroy();
 		}
 
 

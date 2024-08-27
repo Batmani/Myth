@@ -85,11 +85,13 @@ void ABreakableObject::HandleChaosBreakEvent(const FChaosBreakEvent& BreakEvent)
 
 void ABreakableObject::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Object hp: %s"), GeometryCollection->GetDamageThreshold().ToString());
 
-	UE_LOG(LogTemp, Warning, TEXT("hit the  field working"));
+	//UE_LOG(LogTemp, Warning, TEXT("hit the  field working"));
 	if (OtherActor && OtherActor != this)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("hit  field working"));
+		/*UE_LOG(LogTemp, Warning, TEXT("hit apply strain  field working"));
+		GeometryCollection->ApplyInternalStrain(1.0f, Hit.ImpactPoint, 1.0f, 1.0f, 1.0f, 1.0f);*/
 		//ApplyDestructionField(Hit);
 	
 	}
@@ -105,7 +107,6 @@ void ABreakableObject::OnChaosPhysicsCollision(const FChaosPhysicsCollisionInfo&
 	{
 		return;
 	}
-
 	FVector ImpulseDir = CollisionInfo.Normal.GetSafeNormal();
 	float ImpulseMag = CollisionInfo.AccumulatedImpulse.Size();
 

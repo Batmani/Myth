@@ -70,8 +70,9 @@ void ADestructorFieldSystem::Explode()
 	{
 		float Magnitude;                             // Equivalent to Parms.Magnitude
 		EFieldFalloffType FalloffType;               // Equivalent to Parms.FalloffType
-		FVector2D Param_FalloffMinMax;               // Equivalent to Parms.Param_FalloffMinMax
-		UFieldNodeBase* OperatorField = nullptr;     // Equivalent to Parms.OperatorField
+		FVector2D FalloffMinMax;               // Equivalent to Parms.Param_FalloffMinMax
+		UOperatorField* OperatorField = nullptr;     // Equivalent to Parms.OperatorField
+		float ScaleFactor;
 		UCullingField* CullingField = nullptr;			  // Equivalent to Parms.CullingField
 	};
 
@@ -80,8 +81,9 @@ void ADestructorFieldSystem::Explode()
 	// Assign the parameters
 	Args.Magnitude = FalloffMagnitude;  // Set the magnitude
 	Args.FalloffType = Field_Falloff_Linear;  // Set the falloff type
-	Args.Param_FalloffMinMax = FVector2D(0, 1);  // Set the falloff min-max vector
+	Args.FalloffMinMax = FVector2D(0, 1);  // Set the falloff min-max vector
 	Args.OperatorField = nullptr;  // Set the operator field
+	Args.ScaleFactor = 1;
 
 
 	UFunction* findTrigger = MasterField->FindFunction(TEXT("FalloffAndCullSwitch_Main"));
@@ -106,13 +108,13 @@ void ADestructorFieldSystem::Explode()
 		}
 
 		// Set 'Param_FalloffMinMax' property
-		FStructProperty* FalloffMinMaxProp = FindFProperty<FStructProperty>(findTrigger, TEXT("Param_FalloffMinMax"));
+		FStructProperty* FalloffMinMaxProp = FindFProperty<FStructProperty>(findTrigger, TEXT("FalloffMinMax"));
 		if (FalloffMinMaxProp)
 		{
 			FVector2D* FalloffMinMaxPtr = FalloffMinMaxProp->ContainerPtrToValuePtr<FVector2D>(StructMemory);
 			if (FalloffMinMaxPtr)
 			{
-				*FalloffMinMaxPtr = Args.Param_FalloffMinMax;
+				*FalloffMinMaxPtr = Args.FalloffMinMax;
 			}
 		}
 
@@ -123,21 +125,41 @@ void ADestructorFieldSystem::Explode()
 			OperatorFieldProp->SetObjectPropertyValue_InContainer(StructMemory, Args.OperatorField);
 		}
 
+		FFloatProperty* ScaleFactorProp = FindFProperty<FFloatProperty>(findTrigger, TEXT("ScaleFactor"));
+		if (ScaleFactorProp)
+		{
+			ScaleFactorProp->SetPropertyValue_InContainer(StructMemory, Args.ScaleFactor);
+		}
 		// Set 'CullingField' property
 		FObjectProperty* CullingFieldProp = FindFProperty<FObjectProperty>(findTrigger, TEXT("CullingField"));
 		if (CullingFieldProp)
 		{
-			CullingFieldProp->SetObjectPropertyValue_InContainer(StructMemory, Args.CullingField);
+			CullingFieldProp->SetObjectPropertyValue_InContainer(StructMemory, nullptr); // Initialize to null
 		}
 
 		// Call the function
-		MasterField->ProcessEvent(findTrigger, StructMemory);
-		FObjectProperty* RetCullingFieldProp = CastField<FObjectProperty>(findTrigger->GetReturnProperty());
-		UCullingField* ReturnedCullingField = nullptr;
+	/*	MasterField->ProcessEvent(findTrigger, &Args);
+		if (Args.CullingField) {
 
-		if (RetCullingFieldProp)
+		}
+		FProperty* propte = findTrigger->GetReturnProperty();*/
+		MasterField->ProcessEvent(findTrigger, StructMemory);
+
+		UCullingField* ReturnedCullingField = nullptr;
+		if (CullingFieldProp)
 		{
-			ReturnedCullingField = Cast<UCullingField>(RetCullingFieldProp->GetObjectPropertyValue_InContainer(StructMemory));
+			ReturnedCullingField = Cast<UCullingField>(CullingFieldProp->GetObjectPropertyValue_InContainer(StructMemory));
+		}
+		if (ReturnedCullingField)
+		{
+		}
+		FNameProperty* RetCullingFieldProp = CastField<FNameProperty>(findTrigger->GetReturnProperty());
+	 
+		FProperty* prop = findTrigger->GetReturnProperty();
+		if (prop)
+		{
+			RetCullingFieldProp->GetPropertyValue_InContainer(StructMemory);
+			//ReturnedCullingField = Cast<UCullingField>(RetCullingFieldProp->GetPropertyValue_InContainer(StructMemory));
 		}
 		// Check if the returned CullingField is valid and log it
 		if (ReturnedCullingField)
@@ -150,11 +172,17 @@ void ADestructorFieldSystem::Explode()
 				*CullingFieldName,
 				*FieldName,
 				*CullingOperation);
+
+			FieldSystem->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, ReturnedCullingField);
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Returned UCullingField is null."));
 		}
+	}
+
+	if (MasterField) {
+		MasterField->GetWorld()->DestroyActor(MasterField);
 	}
 	//	/*MasterField->ProcessEvent(findTrigger, &Args);*/
 	//	if (Args.CullingField != nullptr)

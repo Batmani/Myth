@@ -29,7 +29,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
     class UProjectileMovementComponent* ProjectileMovement;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
     ADestructorFieldSystem*  DestructorFieldSystem;
 
     UFUNCTION()

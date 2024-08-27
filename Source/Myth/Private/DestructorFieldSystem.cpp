@@ -10,7 +10,7 @@ ADestructorFieldSystem::ADestructorFieldSystem()
     PrimaryActorTick.bCanEverTick = true;
 
     CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
-    CollisionSphere->SetSphereRadius(25.0f, true);
+    CollisionSphere->SetSphereRadius(SphereRadius, true);
     CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndProbe);
     CollisionSphere->SetupAttachment(RootComponent);
     RootComponent = CollisionSphere;
@@ -52,17 +52,19 @@ void ADestructorFieldSystem::Explode()
         EFieldFalloffType::Field_FallOff_None
     );
 
-    FieldSystem->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
+    //FieldSystem->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
 
     URadialVector* RadialVector = NewObject<URadialVector>();
     
     UFieldNodeBase* RadialVectorNode = RadialVector->SetRadialVector(VectorMagnitude, SphereLoc);
 
 	UCullingField* CullingField = NewObject<UCullingField>();
-    UFieldNodeBase* CullingFieldNode = CullingField->SetCullingField(RadialFalloffNode, RadialVectorNode, Field_Culling_Outside);
+    UFieldNodeBase* CullingFieldNode = CullingField->SetCullingField(RadialFalloffNode, RadialVectorNode, Field_Culling_Inside);
 
     // Apply the CullingField to the FieldSystemComponent
-    FieldSystem->ApplyPhysicsField(true, Field_LinearVelocity, nullptr, CullingFieldNode);
+    FieldSystem->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, CullingFieldNode);
+
+	Destroy();
 }
 
 void ADestructorFieldSystem::SpawnAtLocation(const FVector& Location)

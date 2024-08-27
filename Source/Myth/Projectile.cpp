@@ -60,6 +60,10 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			);
 			if (DestructorField)
 			{
+				DestructorField->FalloffMagnitude = FalloffMagnitude;
+				DestructorField->VectorMagnitude = VectorMagnitude;
+				DestructorField->SphereRadius = SphereRadius;
+				UE_LOG(LogProjectile, Warning, TEXT("Its destr"));
 				DestructorField->Explode();
 			}
 

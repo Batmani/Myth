@@ -25,6 +25,15 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Destruction")
     void SpawnAtLocation(const FVector& Location);
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float FalloffMagnitude;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float VectorMagnitude;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float SphereRadius;
+
 protected:
     virtual void BeginPlay() override;
 
@@ -35,12 +44,5 @@ private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     UFieldSystemComponent* FieldSystem;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
-    float FalloffMagnitude;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
-    float VectorMagnitude;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
-    float SphereRadius;
 };

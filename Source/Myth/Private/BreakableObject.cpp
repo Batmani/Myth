@@ -90,7 +90,7 @@ void ABreakableObject::OnComponentHit(UPrimitiveComponent* HitComponent, AActor*
 	if (OtherActor && OtherActor != this)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("hit  field working"));
-		ApplyDestructionField(Hit);
+		//ApplyDestructionField(Hit);
 	
 	}
 }

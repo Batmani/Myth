@@ -11,6 +11,7 @@
 #include "Engine/DamageEvents.h"
 #include "Chaos/ChaosGameplayEventDispatcher.h"
 #include "ManiDestructibleInterface.h"
+#include "DestructorFieldSystem.h"
 
 DEFINE_LOG_CATEGORY(LogProjectile);
 AProjectile::AProjectile()
@@ -27,6 +28,12 @@ AProjectile::AProjectile()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 2000.0f;
 	ProjectileMovement->MaxSpeed = 2000.0f;
+	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->Bounciness = 0.3f;
+
+	// Die after 3 seconds by default
+	InitialLifeSpan = 3.0f;
 	//UE_LOG(LogProjectile, Warning, TEXT("Its projectile mesh "));
 
 
@@ -40,6 +47,21 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 			UE_LOG(LogProjectile, Warning, TEXT("Its onhit o maybe"));
 			// Implement the break logic here
 			BreakableObject->ApplyDestructionField(Hit); // Assuming your breakable object class has a Break() method
+			UE_LOG(LogProjectile, Warning, TEXT("Its impul"));
+			OtherComp->AddImpulseAtLocation(ProjectileMovement->Velocity * 100.0f, Hit.ImpactPoint);
+			BreakableObject->BulletImpact(OtherComp, Hit, Hit.ImpactPoint, true, 55);
+			FVector HitLocation = Hit.Location;
+			FActorSpawnParameters SpawnParams;
+			ADestructorFieldSystem* DestructorField = GetWorld()->SpawnActor<ADestructorFieldSystem>(
+				ADestructorFieldSystem::StaticClass(),
+				HitLocation,
+				FRotator::ZeroRotator,
+				SpawnParams
+			);
+			if (DestructorField)
+			{
+				DestructorField->Explode();
+			}
 
 			// Destroy the projectile after the hit
 			Destroy();

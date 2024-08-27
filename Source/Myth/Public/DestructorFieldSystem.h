@@ -4,42 +4,43 @@
 
 #include "CoreMinimal.h"
 #include "Field/FieldSystemActor.h"
+#include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
+#include "Field/FieldSystemComponent.h"
 #include "DestructorFieldSystem.generated.h"
 
-class UFieldSystemMetaDataFilter;
-class URadialVector;
-class URadialFalloff;
-/**
- *
- */
 UCLASS()
-class MYTH_API ADestructorFieldSystem : public AFieldSystemActor
+class MYTH_API ADestructorFieldSystem : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	ADestructorFieldSystem();
+    ADestructorFieldSystem();
+
+    virtual void Tick(float DeltaTime) override;
+
+    UFUNCTION(BlueprintCallable, Category = "Destruction")
+    void Explode();
+
+    UFUNCTION(BlueprintCallable, Category = "Destruction")
+    void SpawnAtLocation(const FVector& Location);
 
 protected:
+    virtual void BeginPlay() override;
 
-	virtual void BeginPlay() override;
 private:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    USphereComponent* CollisionSphere;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<URadialFalloff> RadialFalloff;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    UFieldSystemComponent* FieldSystem;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<URadialVector> RadialVector;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float FalloffMagnitude;
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UFieldSystemMetaDataFilter> MetaDataFilter;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float VectorMagnitude;
 
-	UPROPERTY(EditAnywhere)
-	float FalloffMagnitude;
-
-	UPROPERTY(EditAnywhere)
-	float VectorMagnitude;
-
-	UPROPERTY(EditAnywhere)
-	float SphereRadius;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Field Properties", meta = (AllowPrivateAccess = "true"))
+    float SphereRadius;
 };

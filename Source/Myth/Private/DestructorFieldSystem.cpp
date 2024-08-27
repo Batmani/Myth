@@ -3,38 +3,70 @@
 
 #include "DestructorFieldSystem.h"
 #include "Field/FieldSystemComponent.h"
+#include "Field/FieldSystemNodes.h"
 
 ADestructorFieldSystem::ADestructorFieldSystem()
 {
-	FalloffMagnitude = 1500000.f;
-	VectorMagnitude = 50000000.f;
-	SphereRadius = 200.f;
+    PrimaryActorTick.bCanEverTick = true;
 
-	RadialFalloff = CreateDefaultSubobject<URadialFalloff>(TEXT("Radial Falloff"));
-	RadialVector = CreateDefaultSubobject<URadialVector>(TEXT("Radial Vector"));
-	MetaDataFilter = CreateDefaultSubobject<UFieldSystemMetaDataFilter>(TEXT("Meta Data Filter"));
+    CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+    CollisionSphere->SetSphereRadius(25.0f, true);
+    CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndProbe);
+    CollisionSphere->SetupAttachment(RootComponent);
+    RootComponent = CollisionSphere;
+    CollisionSphere->SetCollisionProfileName(TEXT("NoCollision"));
+    CollisionSphere->SetGenerateOverlapEvents(false);
+
+    FieldSystem = CreateDefaultSubobject<UFieldSystemComponent>(TEXT("FieldSystem"));
+    FieldSystem->SetupAttachment(RootComponent);
+
+    FalloffMagnitude = 1000000.0f;
+    VectorMagnitude = 10000.0f;
+    SphereRadius = 200.0f;
+}
+
+void ADestructorFieldSystem::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
 }
 
 void ADestructorFieldSystem::BeginPlay()
 {
 	Super::BeginPlay();
-	MetaDataFilter->ObjectType = EFieldObjectType::Field_Object_Destruction;
-	MetaDataFilter->FilterType = EFieldFilterType::Field_Filter_Dynamic;
-	// Min and Max Range is just a number which are multiplied by the Force.
-	// So before the determine these values, watch out that.
-	RadialFalloff->SetRadialFalloff(FalloffMagnitude, 0.8f, 1.f, 0.f, SphereRadius, GetActorLocation(), EFieldFalloffType::Field_FallOff_None);
-	RadialVector->SetRadialVector(VectorMagnitude, GetActorLocation());
+    CollisionSphere->SetSphereRadius(SphereRadius);
+	 
+}
 
-	if (GetFieldSystemComponent())
-	{
-		if (RadialFalloff)
-		{
-			GetFieldSystemComponent()->ApplyPhysicsField(true, Field_ExternalClusterStrain, nullptr, RadialFalloff);
-		}
+void ADestructorFieldSystem::Explode()
+{
+    FVector SphereLoc = CollisionSphere->GetComponentLocation();
+    URadialFalloff* RadialFalloff = NewObject<URadialFalloff>();
 
-		if (RadialVector)
-		{
-			GetFieldSystemComponent()->ApplyPhysicsField(true, Field_LinearForce, MetaDataFilter, RadialVector);
-		}
-	}
+    UFieldNodeBase* RadialFalloffNode = RadialFalloff->SetRadialFalloff(
+        FalloffMagnitude,
+        0.f,
+        1.f,
+        0.f,
+        CollisionSphere->GetScaledSphereRadius(),
+        SphereLoc,
+        EFieldFalloffType::Field_FallOff_None
+    );
+
+    FieldSystem->ApplyPhysicsField(true, EFieldPhysicsType::Field_ExternalClusterStrain, nullptr, RadialFalloff);
+
+    URadialVector* RadialVector = NewObject<URadialVector>();
+    
+    UFieldNodeBase* RadialVectorNode = RadialVector->SetRadialVector(VectorMagnitude, SphereLoc);
+
+	UCullingField* CullingField = NewObject<UCullingField>();
+    UFieldNodeBase* CullingFieldNode = CullingField->SetCullingField(RadialFalloffNode, RadialVectorNode, Field_Culling_Outside);
+
+    // Apply the CullingField to the FieldSystemComponent
+    FieldSystem->ApplyPhysicsField(true, Field_LinearVelocity, nullptr, CullingFieldNode);
+}
+
+void ADestructorFieldSystem::SpawnAtLocation(const FVector& Location)
+{
+    SetActorLocation(Location);
+    Explode();
 }

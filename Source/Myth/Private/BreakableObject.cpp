@@ -54,6 +54,8 @@ void ABreakableObject::ApplyDestructionField(const FHitResult& ImpactPoint)
 	GeometryCollection->ApplyPhysicsField(true, EGeometryCollectionPhysicsTypeEnum::Chaos_LinearVelocity, nullptr, RadialFalloff);
 	UGameplayStatics::ApplyPointDamage(this, 100.0f, GetActorLocation(), ImpactPoint, nullptr, this, UDamageType::StaticClass());
 
+
+
 }
 void ABreakableObject::BeginPlay()
 {
@@ -89,7 +91,7 @@ void ABreakableObject::OnComponentHit(UPrimitiveComponent* HitComponent, AActor*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("hit  field working"));
 		ApplyDestructionField(Hit);
-
+	
 	}
 }
 

@@ -31,7 +31,6 @@ AProjectile::AProjectile()
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 	ProjectileMovement->Bounciness = 0.3f;
-
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
 	//UE_LOG(LogProjectile, Warning, TEXT("Its projectile mesh "));
@@ -63,7 +62,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 				DestructorField->FalloffMagnitude = FalloffMagnitude;
 				DestructorField->VectorMagnitude = VectorMagnitude;
 				DestructorField->SphereRadius = SphereRadius;
-				UE_LOG(LogProjectile, Warning, TEXT("Its destr"));
+				UE_LOG(LogProjectile, Warning, TEXT("Its newest destr"));
 				DestructorField->Explode();
 				
 			}
